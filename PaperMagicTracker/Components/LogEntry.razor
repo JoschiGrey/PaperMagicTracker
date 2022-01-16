@@ -1,0 +1,11 @@
+﻿@using PaperMagicTracker.Interfaces
+<div>
+    <p class="no-background">@Entry.ToString()</p>
+</div>
+
+
+@code
+{
+    [Parameter]
+    public ILoggingObject Entry { get; set; }
+}

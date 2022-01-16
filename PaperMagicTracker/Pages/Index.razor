@@ -1,0 +1,136 @@
+﻿@page "/"
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Buttons
+@using System.Text
+@using PaperMagicTracker.Classes
+@inject AppState AppState
+@inject NavigationManager UriHelper
+
+@using Syncfusion.Blazor.Grids
+
+
+<PageTitle>Index</PageTitle>
+
+
+<h1 class="pageheader" >Paper Magic Tracker</h1>
+<br/>
+<p>
+    This project is still under heavy development and basically everything is subject to change.
+    The aim is to provide a small handy utility for gathering information about your own game play and be of some help optimizing your decks.
+    For this you should be able to track what cards are left in your library, how many cards your drawn and so on.
+</p>
+<div class="flex-wrap content-container deck-inputs">
+    <div class="div-deck-list sub-container">
+        <h2>Enter your Decklist</h2>
+        <SfTextBox Multiline="true" Placeholder="1 Sol Ring" FloatLabelType="FloatLabelType.Never" @bind-Value="@DeckList"></SfTextBox>
+    </div>
+    <div class="deck-list-upload">
+        <div class="sub-container">
+            <div>
+                <h2>Upload your list as text file</h2>
+                <SfUploader AllowedExtensions=".txt">
+                    <UploaderEvents ValueChange="OnFileUpload"></UploaderEvents>
+                </SfUploader>
+            </div>
+            <div class="top-space">
+                <h2>Import from link (Not implemented)</h2>
+                <div class="flex-row">
+                    <SfTextBox/>
+                    <SfButton>Import Deck List</SfButton>
+                </div>
+            </div>
+        </div>
+        <div class="sub-container center">
+            <SfButton CssClass="e-custom" @onclick="OnStartGameClick">Start Game</SfButton>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    private string DeckList { get; set; } = "";
+
+    private void OnFileUpload(UploadChangeEventArgs args)
+    {
+        foreach (var file in args.Files)
+        {
+            var ms = file.Stream;
+
+            ms.Seek(0, SeekOrigin.Begin);
+
+            var content = Encoding.UTF8.GetString(ms.ToArray());
+
+            if(!string.IsNullOrEmpty(content))
+                DeckList = content;
+        }
+    }
+
+    private void OnStartGameClick()
+    {
+        var newGame = Game.CreateFromString(DeckList);
+        AppState.GameCreated = true;
+        UriHelper.NavigateTo("MainGameWindow");
+    }
+}
+
+<style>
+
+    .e-custom {
+        border-radius: 5px;
+        height: 30%;
+        width: 50%;
+        border: 2px solid var(--white-overlay--2dp)
+    }
+    
+
+    .e-multi-line-input .e-control.e-textbox.e-lib.e-input {
+        height: 275px;
+    }
+
+    .deck-inputs .flex-row {
+        display: flex;
+        align-items: flex-end;
+        align-content: space-between;
+    }
+
+    .deck-inputs {
+        flex-direction: row;
+        display: flex;
+        justify-content: center;
+
+    }
+
+    .deck-inputs .e-textbox {
+        margin-top: 5px
+    }
+
+    .ulstyle {
+        margin-top: 10px;
+        margin-bottom: 20px;
+        display: inline-block;
+        list-style-type: none !important;
+        padding-left: 0px !important;
+    }
+
+    .div-deck-list {
+        margin-top: 50px;
+        width: 45%;
+        margin: 2%;
+    }
+
+    .deck-list-upload {
+        width: 45%;
+        margin: 2%
+    }
+
+    .list {
+        float: left;
+        line-height: 40px;
+        min-width: 280px;
+        font-family: sans-serif !important;
+        font-size: 44px;
+        color: #0073DC;
+    }
+
+
+</style>

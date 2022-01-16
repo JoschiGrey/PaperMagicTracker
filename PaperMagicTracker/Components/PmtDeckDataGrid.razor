@@ -1,0 +1,104 @@
+﻿@using Syncfusion.Blazor.Grids
+@using PaperMagicTracker.Classes
+
+
+<div class="decktable">
+    <div class="table-title-line">
+        <p class="table-title">@Zone.Name</p>
+        <span class="card-count">Card Count: @Zone.CardCount</span>
+    </div>
+    <SfGrid ref="@Ref" ID="@Zone.Name" DataSource="@CardList" AllowRowDragAndDrop="true" AllowSelection="false" RowHeight="30" Height="100%">
+        <GridEvents RowDropped="RowDropHandler" TValue="CardInfo"></GridEvents>
+        <GridSelectionSettings Type="SelectionType.Single"></GridSelectionSettings>
+        <GridColumns>
+            <GridColumn Field="@nameof(CardInfo.Count)" TextAlign="TextAlign.Right" Width="100%" CustomAttributes="@(new Dictionary<string, object>() { { "class", "e-rowdragdrop e-attr" } })"></GridColumn>
+            <GridColumn Field="@nameof(CardInfo.Name)" IsPrimaryKey="true" AutoFit="true" CustomAttributes="@(new Dictionary<string, object>() { { "class", "e-rowdragdrop e-attr e-name" } })"></GridColumn>
+            @*<GridColumn Field="@nameof(CardInfo.TypeLine)" AutoFit="true"></GridColumn>*@
+            @*<GridColumn Field="@nameof(CardInfo.Manacost)" TextAlign="TextAlign.Right" AutoFit="true"></GridColumn>*@
+        </GridColumns>
+        <GridTemplates>
+            <EmptyRecordTemplate>
+                <span></span>
+            </EmptyRecordTemplate>
+        </GridTemplates>
+    </SfGrid>
+</div>
+
+
+
+@code
+{
+    public List<CardInfo> CardList => Zone.Cards.Values.ToList();
+
+    private SfGrid<CardInfo>? Ref { get; set; }
+
+    [Parameter]
+    public Zone Zone { get; set; }
+
+    [Parameter]
+    public string ID { get; set; }
+
+    [Parameter]
+    public EventCallback<(RowDragEventArgs<CardInfo>, Zone)> OnRowDropped { get; set; }
+
+    protected override void OnParametersSet()
+    {
+
+        base.OnParametersSet();
+    }
+
+    public async Task  RowDropHandler(RowDragEventArgs<CardInfo> args)
+    {
+        Console.WriteLine(Zone.Name);
+        await  OnRowDropped.InvokeAsync((args, Zone));
+    }
+}
+
+<style>
+    .table-title-line {
+        display: flex;
+        flex-wrap: nowrap;
+        flex-direction: row;
+        align-content: center;
+        justify-content: space-between;
+        align-items: baseline;
+    }
+
+    .card-count {
+
+    }
+
+    .table-title {
+        font-size: 18px;
+        background: none;
+        margin-bottom: -2px;
+        padding: 0;
+    }
+
+    .e-grid .e-gridheader .e-columnheader{
+        display: none;
+    }
+
+    .decktable {
+        min-width: 360px;
+        max-width: 439px;
+        max-height: 502px;
+        min-height: 200px;
+        background: none;
+        margin: 1%;
+        padding-bottom: 20px;
+
+    }
+
+    .e-attr {
+        border: none !important;
+    }
+
+    .e-table.e-tableborder {
+        border: none;
+    }
+
+    .content-container .sub-container + .sub-container {
+        margin: 5%;
+    }
+</style>

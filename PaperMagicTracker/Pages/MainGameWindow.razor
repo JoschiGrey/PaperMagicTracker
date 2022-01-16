@@ -1,0 +1,113 @@
+﻿@page "/MainGameWindow"
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.DropDowns
+@using PaperMagicTracker.Classes
+@using PaperMagicTracker.Extentions
+@using FilterType = Syncfusion.Blazor.DropDowns.FilterType
+@using System.Globalization
+
+<div class="flex-wrap overall-container">
+    <div class="content-container information-holder">
+        <SfButton CssClass="e-button" @onclick="() => GlobalStaticResources.CurrentGame.AdvanceTurn()"><span class="button-text">Advance Turncounter: @GlobalStaticResources.CurrentGame.TurnCount</span></SfButton>
+        <hr class="divider-rounded"/>
+        @*Not Implemented
+            <SfButton CssClass="e-button" @onclick="AddCustomTrackerOnClick"><span class="button-text">Add Custom Tracker</span></SfButton>
+        <div class="sub-container custom-track-holder">
+            @for (var i = 1; i <= 2; i++)
+            {
+                <div class="custom-tracker">
+                    <SfButton><span class="button-text">Add to event</span></SfButton>
+                    <p class="no-background">Track Description</p>
+                    <p class="no-background">Current State</p>
+                    <hr class="divider-rounded"/>
+                </div>
+            }
+        </div>*@
+    </div>
+
+    <div class="content-container grid-holder flex-wrap">
+        @foreach (var zoneEnum in Enum.GetValues<Zones>())
+        {
+            <PmtDeckDataGrid @ref="@Ref" Zone="GlobalStaticResources.CurrentGame.GameZones[zoneEnum]" OnRowDropped="OnRowDroppedEventHandler"></PmtDeckDataGrid>
+        }
+    </div>
+
+    <div class="content-container graph-holder">
+        <div class="hypergeometric-calculator sub-container">
+            <SfDropDownList TItem="Zone" TValue="Zone" DataSource="@GlobalStaticResources.CurrentGame.GameZones.Values.ToList()" @bind-Value="@SelectedZoneForProbability">
+                <DropDownListFieldSettings Text="@nameof(Zone.Name)"></DropDownListFieldSettings>
+            </SfDropDownList>
+
+            <SfAutoComplete TItem="string" TValue="string" DataSource="CardTypes.AllCardTypes" FilterType="FilterType.Contains" @bind-Value="@SelectedType"></SfAutoComplete>
+            <SfNumericTextBox TValue="int" @bind-Value="Draws" Placeholder="Number of Draws" Min="0"></SfNumericTextBox>
+            <span>Probability: @ProbabilityCalc()</span>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .hypergeometric-calculator {
+
+    }
+</style>
+
+
+
+
+@code
+{
+    private string SelectedType { get; set; } = "Land";
+
+    private int Draws { get; set; } = 1;
+
+    private Zone SelectedZoneForProbability { get; set; } = GlobalStaticResources.CurrentGame.GameZones[Zones.Library];
+
+    private string ProbabilityCalc()
+    {
+        if (Draws == 0)
+        {
+            return "0";
+        }
+
+        var prob = SelectedZoneForProbability.GetProbabilityOfType(SelectedType, Draws);
+        return prob.ToString(CultureInfo.CurrentCulture);
+    }
+
+
+    public Dictionary<Zones, PmtDeckDataGrid>? Grids { get; set; } = new();
+
+    public PmtDeckDataGrid Ref
+    {
+        set => Grids.Add(value.Zone.Id, value);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CardTypes.CreateAsync();
+    }
+
+    public void AddCustomTrackerOnClick()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void OnRowDroppedEventHandler((RowDragEventArgs<CardInfo>, Zone) packedArgs)
+    {
+        var (args, donatorZone) = packedArgs;
+
+        var xPathByReflection = (string)args.Target.GetPropertyValue("XPath");
+
+        if (!Zone.TryGetZone(xPathByReflection, out var receiverZone))
+            return;
+
+        if (!Grids.ContainsKey(receiverZone))
+            return;
+
+        var targetGridComponent = Grids[receiverZone];
+
+        targetGridComponent.Zone.MoveCard(donatorZone, args.Data.First());
+    }
+}

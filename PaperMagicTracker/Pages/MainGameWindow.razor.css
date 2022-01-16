@@ -1,0 +1,73 @@
+﻿
+.grid-holder {
+     display: flex;
+     justify-content: center;
+     flex-direction: row;
+     margin-bottom: 24px;
+     padding-bottom: 60px;
+     width: 75%;
+     max-height: 1050px;
+     align-content: flex-start
+ }
+
+.overall-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.information-holder {
+    width: 20%;
+    margin-bottom: 20px;
+    display: flex;
+    justify-items: center;
+    align-content: space-around;
+    justify-content: flex-start;
+    flex-direction: column;
+    max-height: 1050px;
+}
+
+.graph-holder {
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+.divider-rounded {
+    border-top: 3px solid var(--white-overlay--1dp);
+    width: 80%;
+    border-radius: 5px;
+}
+
+.e-button {
+    width: 70%;
+    align-self: center;
+}
+
+.custom-track-holder {
+    width: 100%;
+    margin-top: 11px;
+    overflow-x: hidden;
+}
+
+.button-text {
+    white-space: pre-wrap;
+}
+
+.custom-tracker {
+    display: flex;
+    padding-bottom: 19px;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.custom-tracker p {
+    padding-top: 5px;
+}
+
+.custom-tracker .divider-rounded {
+    margin: 1px;
+}
+

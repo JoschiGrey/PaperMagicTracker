@@ -1,0 +1,16 @@
+﻿@page "/LogViewer"
+@using PaperMagicTracker.Interfaces
+@using PaperMagicTracker.Classes
+
+
+<div>
+    @foreach (var entry in GameLog)
+    {
+        <LogEntry Entry="entry"></LogEntry>
+    }
+</div>
+
+@code
+{
+    public List<ILoggingObject> GameLog => GlobalStaticResources.CurrentGame.GameLogger.GameLog;
+}
