@@ -1,16 +1,57 @@
 ﻿@page "/LogViewer"
 @using PaperMagicTracker.Interfaces
 @using PaperMagicTracker.Classes
+@using Syncfusion.Blazor.DropDowns
 
-
-<div>
-    @foreach (var entry in GameLog)
-    {
-        <LogEntry Entry="entry"></LogEntry>
-    }
+<div class="content log-viewer">
+    <div class="sub-container transfer-counter">
+        <div class="zone-selector">
+            <SfDropDownList TItem="Zone" TValue="Zone" DataSource="@Game.GameZones.Values.ToList()" @bind-Value="@SelectedStartZone">
+                <DropDownListFieldSettings Text="@nameof(Zone.Name)"></DropDownListFieldSettings>
+            </SfDropDownList>
+        </div>
+        <div class="zone-selector">
+            <SfDropDownList TItem="Zone" TValue="Zone" DataSource="@Game.GameZones.Values.ToList()" @bind-Value="@SelectedDestinationZone">
+                <DropDownListFieldSettings Text="@nameof(Zone.Name)"></DropDownListFieldSettings>
+            </SfDropDownList>
+        </div>
+        <div>
+            <span>@Game.GameLogger.CountCardTransfers(SelectedStartZone, SelectedDestinationZone).ToString() Times</span>
+        </div>
+    </div>
+    <div class="sub-container">
+        @foreach (var entry in GameLog)
+        {
+            <LogEntry Entry="entry"></LogEntry>
+        }
+    </div>
 </div>
+
+
 
 @code
 {
+    private Zone SelectedStartZone { get; set; } = Game.GameZones[Zones.Library];
+
+    private Zone SelectedDestinationZone { get; set; } = Game.GameZones[Zones.Hand];
+
+
     public List<ILoggingObject> GameLog => Game.GameLogger.GameLog;
 }
+
+<style>
+    .log-viewer {
+        display: flex;
+        justify-content: space-around;
+    }
+    
+    .transfer-counter {
+        display: flex;
+        align-items: baseline;
+    }
+
+    .zone-selector {
+        padding: 10px;
+        padding-left: 0;
+    }
+</style>

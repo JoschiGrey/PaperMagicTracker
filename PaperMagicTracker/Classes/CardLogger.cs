@@ -1,4 +1,5 @@
 ﻿using PaperMagicTracker.Interfaces;
+using Syncfusion.Blazor.PdfViewer;
 
 namespace PaperMagicTracker.Classes
 {
@@ -26,6 +27,12 @@ namespace PaperMagicTracker.Classes
             {
                 Console.WriteLine(entry.Print());
             }
+        }
+
+        public int CountCardTransfers(Zone fromZone, Zone toZone)
+        {
+            return GameLog.OfType<CardTransfer>().Count(loggingObject =>
+                loggingObject.Donator == fromZone && loggingObject.Acceptor == toZone);
         }
 
         public List<ILoggingObject> GameLog { get; private set; } = new();
