@@ -13,12 +13,11 @@ namespace PaperMagicTracker.Classes
 
     public class Zone
     {
-        public Zone(Zones zone, Game game, Dictionary<Guid, CardInfo> startingCards = null)
+        public Zone(Zones zone, Dictionary<Guid, CardInfo> startingCards = null)
         {
             startingCards ??= new Dictionary<Guid, CardInfo>();
 
             Id = zone;
-            GameObject = game;
             Cards = startingCards;
 
             var name = Enum.GetName(typeof(Zones), Id);
@@ -29,6 +28,11 @@ namespace PaperMagicTracker.Classes
             }
 
             Name = name;
+        }
+
+        public void RemoveAllCard()
+        {
+            Cards = new Dictionary<Guid, CardInfo>();
         }
 
         /// <summary>
@@ -42,7 +46,7 @@ namespace PaperMagicTracker.Classes
             AddCard(cardToAdd);
             donator.RemoveCard(cardToAdd);
 
-            GameObject.GameLogger.AddEntry(donator, this, cardToAdd);
+            Game.GameLogger.AddEntry(donator, this, cardToAdd);
         }
 
         /// <summary>
@@ -110,6 +114,11 @@ namespace PaperMagicTracker.Classes
                 Where(i => i.TypeLine.Contains(cardType)).
                     Sum(i => i.Count);
 
+            if (!Hypergeometric.IsValidParameterSet(CardCount, countOfCardWithType, draws))
+            {
+                return 0;
+            }
+
             var probability = Hypergeometric.CDF(CardCount, countOfCardWithType, draws, 0);
 
             var probabilityOfAtLeastOne = 1 - probability;
@@ -125,7 +134,6 @@ namespace PaperMagicTracker.Classes
         /// Key: OracleID Value: Id
         /// </summary>
         public Dictionary<Guid, CardInfo> Cards { get; set; }
-        private Game GameObject { get; }
 
         public int CardCount
         {

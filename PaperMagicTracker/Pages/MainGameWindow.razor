@@ -10,7 +10,7 @@
 
 <div class="flex-wrap overall-container">
     <div class="content-container information-holder">
-        <SfButton CssClass="e-button" @onclick="() => GlobalStaticResources.CurrentGame.AdvanceTurn()"><span class="button-text">Advance Turncounter: @GlobalStaticResources.CurrentGame.TurnCount</span></SfButton>
+        <SfButton CssClass="e-button" @onclick="() => Game.AdvanceTurn()"><span class="button-text">Advance Turncounter: @Game.TurnCount</span></SfButton>
         <hr class="divider-rounded"/>
         @*Not Implemented
             <SfButton CssClass="e-button" @onclick="AddCustomTrackerOnClick"><span class="button-text">Add Custom Tracker</span></SfButton>
@@ -30,19 +30,26 @@
     <div class="content-container grid-holder flex-wrap">
         @foreach (var zoneEnum in Enum.GetValues<Zones>())
         {
-            <PmtDeckDataGrid @ref="@Ref" Zone="GlobalStaticResources.CurrentGame.GameZones[zoneEnum]" OnRowDropped="OnRowDroppedEventHandler"></PmtDeckDataGrid>
+            <PmtDeckDataGrid @ref="@Ref" Zone="Game.GameZones[zoneEnum]" OnRowDropped="OnRowDroppedEventHandler"></PmtDeckDataGrid>
         }
     </div>
 
     <div class="content-container graph-holder">
         <div class="hypergeometric-calculator sub-container">
-            <SfDropDownList TItem="Zone" TValue="Zone" DataSource="@GlobalStaticResources.CurrentGame.GameZones.Values.ToList()" @bind-Value="@SelectedZoneForProbability">
-                <DropDownListFieldSettings Text="@nameof(Zone.Name)"></DropDownListFieldSettings>
-            </SfDropDownList>
 
-            <SfAutoComplete TItem="string" TValue="string" DataSource="CardTypes.AllCardTypes" FilterType="FilterType.Contains" @bind-Value="@SelectedType"></SfAutoComplete>
-            <SfNumericTextBox TValue="int" @bind-Value="Draws" Placeholder="Number of Draws" Min="0"></SfNumericTextBox>
-            <span>Probability: @ProbabilityCalc()</span>
+            <div>
+                <SfDropDownList TItem="Zone" TValue="Zone" DataSource="@Game.GameZones.Values.ToList()" @bind-Value="@SelectedZoneForProbability">
+                    <DropDownListFieldSettings Text="@nameof(Zone.Name)"></DropDownListFieldSettings>
+                </SfDropDownList>
+            </div>
+            <div>
+                <SfAutoComplete TItem="string" TValue="string" DataSource="CardTypes.AllCardTypes" FilterType="FilterType.Contains" @bind-Value="@SelectedType"></SfAutoComplete>
+            </div>
+            <div id="cards-drawn-numselect">
+                <span>Cards Drawn</span>
+                <SfNumericTextBox TValue="int" @bind-Value="Draws" Placeholder="Number of Draws" Min="0"></SfNumericTextBox>
+            </div>
+            <span id="prob-display">Probability: @ProbabilityCalc()</span>
         </div>
     </div>
 </div>
@@ -50,7 +57,21 @@
 
 <style>
     .hypergeometric-calculator {
+        display: flex;
+        align-items: flex-end;
+        max-width: 45%;
+        padding: 1%;
+        justify-content: center;
+    }
 
+    #prob-display {
+        padding-left: 10px;
+        padding-bottom: 4px;
+    }
+
+    #cards-drawn-numselect {
+        min-width: 13%;
+        max-width: 20%;
     }
 </style>
 
@@ -63,11 +84,11 @@
 
     private int Draws { get; set; } = 1;
 
-    private Zone SelectedZoneForProbability { get; set; } = GlobalStaticResources.CurrentGame.GameZones[Zones.Library];
+    private Zone SelectedZoneForProbability { get; set; } = Game.GameZones[Zones.Library];
 
     private string ProbabilityCalc()
     {
-        if (Draws == 0)
+        if (Draws <= 0)
         {
             return "0";
         }

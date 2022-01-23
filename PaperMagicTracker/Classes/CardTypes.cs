@@ -26,7 +26,7 @@ namespace PaperMagicTracker.Classes
 
             Parallel.ForEach(Enum.GetValues<TypeLists>(), (superType, state) =>
                     {
-                        string path = @$"sample-data\{superType}-types.json";
+                        string path = @$"sample-data\{superType.ToString().ToLower()}-types.json";
 
                         if (!File.Exists(path))
                         {

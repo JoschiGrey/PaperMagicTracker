@@ -28,7 +28,6 @@ namespace PaperMagicTracker.Classes
             }
         }
 
-
         public List<ILoggingObject> GameLog { get; private set; } = new();
     }
 

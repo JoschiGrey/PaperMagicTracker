@@ -1,6 +1,8 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using Ardalis.GuardClauses;
+using PaperMagicTracker.Exceptions;
 
 namespace PaperMagicTracker.Classes
 {
@@ -9,9 +11,9 @@ namespace PaperMagicTracker.Classes
     /// </summary>
     public class CardInfo : ICloneable
     {
-        public CardInfo()
+        public CardInfo(string name)
         {
-            Name = "Invalid";
+            Name = name;
             ScryfallUri = new("https://en.wikipedia.org/wiki/HTTP_404");
             TypeLine = "Invalid";
         }
@@ -24,13 +26,19 @@ namespace PaperMagicTracker.Classes
         {
             client.DefaultRequestHeaders.Accept.Clear();
 
-
             string url = "https://api.scryfall.com/cards/named/?fuzzy=" + name;
-            var streamTask = client.GetFromJsonAsync<CardInfo>(url);
 
-            var fetchedCard = await Guard.Against.Null(streamTask, nameof(streamTask));
 
-            return fetchedCard ?? throw new Exception("Cardname could not be found in Scryfall");
+            try
+            {
+                var streamTask = client.GetFromJsonAsync<CardInfo>(url);
+                var fetchedCard = await streamTask;
+                return fetchedCard ?? throw new CardRetrievalException(name);
+            }
+            catch
+            {
+                throw new CardRetrievalException(name);
+            }
         }
 
         [JsonConstructor]
@@ -73,7 +81,7 @@ namespace PaperMagicTracker.Classes
         public string TypeLine { get; }
 
         [JsonPropertyName("mana_cost")]
-        public string Manacost { get; }
+        public string? Manacost { get; }
 
         public int Count { get; set; }
 
@@ -81,14 +89,12 @@ namespace PaperMagicTracker.Classes
 
         public static async Task<Dictionary<Guid, CardInfo>> GetDeckListAsync(Uri deckUri, string deckString = "")
         {
-            Dictionary<Guid, CardInfo> deckList;
 
             var uriString = deckUri.ToString();
 
             if (uriString.Contains("archidekt"))
             {
-                deckList = await ArchidektDeck.CreateArchidektDeck(deckUri);
-                return deckList;
+                return await ArchidektDeck.CreateArchidektDeckAsync(deckUri);
             }
 
             if (uriString.Contains("deckstats"))
@@ -97,15 +103,11 @@ namespace PaperMagicTracker.Classes
                 //return deckList;
             }
 
-            if(StringDeck.TryParseDeckString(deckString, out deckList))
-                return deckList;
-
             //If we cannot detect the correct side just throw a exception
             throw new NotImplementedException("No available Method for Parsing the Deck has succeeded");
         }
 
         public object Clone()
-
         {
             return this.MemberwiseClone();
         }
@@ -113,28 +115,105 @@ namespace PaperMagicTracker.Classes
 
     public static class StringDeck
     {
-        public static bool TryParseDeckString(string deck, out Dictionary<Guid, CardInfo> deckList)
+        public static async Task<Dictionary<Guid, CardInfo>> ParseDeckStringAsyncOld(string deck)
         {
-            deckList = new();
-            var success = true;
+            Dictionary<Guid,CardInfo> deckList = new();
+            var failedEntries = new List<string>();
 
             var amountAndCards = deck.Split("\n", StringSplitOptions.RemoveEmptyEntries);
             
             foreach(var amountCardString in amountAndCards)
             {
                 var amountCardSeperated = amountCardString.Split(new[] { ' ' }, 2);
-                var parseSuccess = int.TryParse(amountCardSeperated[0], out var amount);
 
-                var getSuccess = AllOracleCards.TryGetCardByName(amountCardSeperated[1], out var cardInfo);
+                var cardName = amountCardSeperated.Length == 2 ? amountCardSeperated[1] : amountCardSeperated[0];
+                Console.WriteLine(cardName);
+
+                var unparesedAmount = amountCardSeperated[0];
+                Console.WriteLine(unparesedAmount);
+
+                var parseSuccess = int.TryParse(unparesedAmount, out var amount);
+
+                var getSuccess = AllOracleCards.TryGetCardByName(cardName, out var cardInfo);
+
+                if (!getSuccess)
+                {
+                    try
+                    {
+                        var cardInfoTask = CardInfo.GetCardByNameAsync(cardName);
+                        getSuccess = true;
+                        cardInfo = await cardInfoTask;
+                    }
+                    catch (Exception ex)
+                    {
+                        getSuccess = false;
+                    }
+                }
+
                 if (getSuccess == false || parseSuccess == false)
-                    success = false;
+                {
+                    failedEntries.Add(amountCardString);
+                    
+                    Console.WriteLine(amountCardString);
+
+                    continue;
+                }
 
                 cardInfo.Count = amount;
                 deckList.Add(cardInfo.ScryfallOracleID, cardInfo);
             }
 
-            return success;
+            Game.FailedToFetchCards = failedEntries;
+
+            return deckList;
         }
+
+        public static async Task<Dictionary<Guid, CardInfo>> ParseDeckStringAsync(string deck)
+        {
+            Dictionary<Guid, CardInfo> deckList = new();
+            var failedEntries = new List<string>();
+
+            var amountAndCards = deck.Split("\n", StringSplitOptions.RemoveEmptyEntries);
+
+            //Matches any amount of numbers followed by any amount of whitespaces. PLS wizrads don't introduce cards that actually start with a digit ffs
+            var pattern = @"^([\d]*)\s*";
+            var rg = new Regex(pattern, RegexOptions.IgnoreCase);
+
+            foreach (var amountCardString in amountAndCards)
+            {
+                Console.WriteLine(amountCardString);
+
+                var amountString = rg.Match(amountCardString).ToString();
+                int.TryParse(amountString, out var amount);
+
+                var nameString = rg.Replace(amountCardString, "");
+
+                if (!AllOracleCards.TryGetCardByName(nameString, out var cardInfo))
+                {
+                    try
+                    {
+                        Console.WriteLine("Fallback to scryfall for: " + nameString);
+                        cardInfo = await CardInfo.GetCardByNameAsync(nameString);
+                    }
+                    catch (CardRetrievalException e)
+                    {
+                        Console.WriteLine("exception in fallback adding to failed entries");
+                        failedEntries.Add(e.FailedCard);
+                        continue;
+                    }
+                }
+
+                cardInfo.Count = amount;
+                deckList.Add(cardInfo.ScryfallOracleID, cardInfo);
+                Console.WriteLine($"Added {cardInfo.Name} to deckList");
+            }
+
+            Game.FailedToFetchCards = failedEntries;
+
+            Console.WriteLine("returning deckList");
+            return deckList;
+        }
+
 
         /*
         public static bool TryParseRegexDeckString(string deck, out Dictionary<Guid, CardInfo> deckList)

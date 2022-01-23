@@ -46,6 +46,7 @@
     </div>
 </div>
 
+
 @code
 {
     private string DeckList { get; set; } = "";
@@ -65,9 +66,16 @@
         }
     }
 
-    private void OnStartGameClick()
+    private async void OnStartGameClick()
     {
-        var newGame = Game.CreateFromString(DeckList);
+        if (AppState.GameCreated)
+        {
+            await Game.ResetGame(DeckList);
+            UriHelper.NavigateTo("MainGameWindow");
+            return;
+        }
+
+        await Game.CreateAsync(DeckList);
         AppState.GameCreated = true;
         UriHelper.NavigateTo("MainGameWindow");
     }

@@ -7,7 +7,8 @@
         <p class="table-title">@Zone.Name</p>
         <span class="card-count">Card Count: @Zone.CardCount</span>
     </div>
-    <SfGrid ref="@Ref" ID="@Zone.Name" DataSource="@CardList" AllowRowDragAndDrop="true" AllowSelection="false" RowHeight="30" Height="100%">
+    <SfGrid ref="@Ref" ID="@Zone.Name" DataSource="@CardList" AllowRowDragAndDrop="true" AllowSelection="true" RowHeight="30" Height="100%">
+        <GridSelectionSettings AllowDragSelection="false" Type="SelectionType.Multiple"></GridSelectionSettings>
         <GridEvents RowDropped="RowDropHandler" TValue="CardInfo"></GridEvents>
         <GridSelectionSettings Type="SelectionType.Single"></GridSelectionSettings>
         <GridColumns>
@@ -101,4 +102,5 @@
     .content-container .sub-container + .sub-container {
         margin: 5%;
     }
+
 </style>

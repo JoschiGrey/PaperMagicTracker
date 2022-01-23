@@ -1,30 +1,26 @@
-﻿namespace PaperMagicTracker.Classes
+﻿using PaperMagicTracker.Exceptions;
+
+namespace PaperMagicTracker.Classes
 {
-    public class Game
+    public static class Game
     {
-        public static async Task<Game> CreateAsync(Uri uri)
+        public static async Task TaskCreateAsync(Uri uri)
         {
-            var newGame = new Game();
-            await newGame.InitializeAsync(uri);
-
-            return newGame;
+            await InitializeAsync(uri);
         }
 
-        public static Game CreateFromString(string deckString)
+        public static async Task CreateAsync(string deckString)
         {
-            var newGame = new Game();
-            newGame.Initialize(deckString);
-            GlobalStaticResources.CurrentGame = newGame;
-            return newGame;
+            await InitializeFromStringAsync(deckString);
         }
 
-        private async Task InitializeAsync(Uri uri)
+        private static async Task InitializeAsync(Uri uri)
         {
             var deckTask = CardInfo.GetDeckListAsync(uri);
 
             foreach(var zoneEnum in Enum.GetValues<Zones>())
             {
-                Zone newZone = new(zoneEnum, this);
+                Zone newZone = new(zoneEnum);
                 GameZones.Add(zoneEnum, newZone);
             }
 
@@ -46,20 +42,22 @@
             GameZones[Zones.Command].AddMultipleCards(commander);
         }
 
-        private void Initialize(string deckString)
+        private static async Task InitializeFromStringAsync(string deckString)
         {
-            if(!StringDeck.TryParseDeckString(deckString, out var deckList))
-                return;
+            var deckListTask = StringDeck.ParseDeckStringAsync(deckString);
 
             foreach (var zoneEnum in Enum.GetValues<Zones>())
             {
-                Zone newZone = new(zoneEnum, this);
+                Zone newZone = new(zoneEnum);
                 GameZones.Add(zoneEnum, newZone);
             }
 
             List<CardInfo> commander = new();
 
+            var deckList = await deckListTask;
+
             AllCards = deckList;
+            Console.WriteLine("set decklist to allCards");
 
             foreach (var (key, value) in deckList.Where(entry => entry.Value.IsCommander))
             {
@@ -68,11 +66,12 @@
             }
 
             GameZones[Zones.Library].Cards = deckList;
+            Console.WriteLine("set decklist to library");
 
             GameZones[Zones.Command].AddMultipleCards(commander);
         }
 
-        public void AdvanceTurn()
+        public static void AdvanceTurn()
         {
             var startTurn = TurnCount;
             TurnCount ++;
@@ -82,26 +81,32 @@
             GameLogger.AddEntry(advance);
         }
 
-        private Game()
+        public static async Task ResetGame(string deckString)
         {
+            GameZones.Clear();
+            FailedToFetchCards.Clear();
+            AllCards.Clear();
+            TurnCount = 1;
             GameLogger = new CardLog();
+
+            await CreateAsync(deckString);
         }
 
-        public CardLog GameLogger { get; }
+        public static CardLog GameLogger { get; private set; } = new();
 
-        public int TurnCount { get; private set; } = 1;
+        public static int TurnCount { get; private set; } = 1;
 
         /// <summary>
         /// A set containing all game Zones
         /// </summary>
-        public Dictionary<Zones, Zone> GameZones { get; } = new();
+        public static Dictionary<Zones, Zone> GameZones { get; } = new();
 
         /// <summary>
         /// All cards that got added irrelevant of its current zone.
         /// </summary>
-        public Dictionary<Guid, CardInfo> AllCards { get; private set; } = new();
+        public static Dictionary<Guid, CardInfo> AllCards { get; private set; } = new();
 
-
+        public static List<string> FailedToFetchCards { get; set; } = new();
 
     }
 }

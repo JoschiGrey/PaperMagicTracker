@@ -77,7 +77,7 @@ namespace PaperMagicTracker.Classes
 
             if (!AllOracleCardsByName.ContainsKey(cleanedName))
             {
-                card = new CardInfo();
+                card = new CardInfo(cleanedName);
                 return false;
             }
 

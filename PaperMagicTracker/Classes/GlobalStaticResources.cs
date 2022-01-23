@@ -2,8 +2,6 @@
 {
     public static class GlobalStaticResources
     {
-        public static Game CurrentGame { get; set; }
-
         public static HttpClient Client { get; set; }
 
         /// <summary>

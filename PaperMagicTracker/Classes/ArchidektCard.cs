@@ -45,7 +45,7 @@ namespace PaperMagicTracker.Classes
         /// </summary>
         /// <param name="archidektDeck"></param>
         /// <returns></returns>
-        public static async Task<Dictionary<Guid, CardInfo>> CreateArchidektDeck(Uri uri)
+        public static async Task<Dictionary<Guid, CardInfo>> CreateArchidektDeckAsync(Uri uri)
         {
             var deckRoot = await GetArchidektDecklist(uri);
 
