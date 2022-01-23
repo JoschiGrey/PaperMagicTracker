@@ -9,7 +9,6 @@
 *.user
 *.userosscache
 *.sln.docstates
-*SyncfusionLicense.txt
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
