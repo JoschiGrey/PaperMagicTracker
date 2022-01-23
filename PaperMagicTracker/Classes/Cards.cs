@@ -115,59 +115,6 @@ namespace PaperMagicTracker.Classes
 
     public static class StringDeck
     {
-        public static async Task<Dictionary<Guid, CardInfo>> ParseDeckStringAsyncOld(string deck)
-        {
-            Dictionary<Guid,CardInfo> deckList = new();
-            var failedEntries = new List<string>();
-
-            var amountAndCards = deck.Split("\n", StringSplitOptions.RemoveEmptyEntries);
-            
-            foreach(var amountCardString in amountAndCards)
-            {
-                var amountCardSeperated = amountCardString.Split(new[] { ' ' }, 2);
-
-                var cardName = amountCardSeperated.Length == 2 ? amountCardSeperated[1] : amountCardSeperated[0];
-                Console.WriteLine(cardName);
-
-                var unparesedAmount = amountCardSeperated[0];
-                Console.WriteLine(unparesedAmount);
-
-                var parseSuccess = int.TryParse(unparesedAmount, out var amount);
-
-                var getSuccess = AllOracleCards.TryGetCardByName(cardName, out var cardInfo);
-
-                if (!getSuccess)
-                {
-                    try
-                    {
-                        var cardInfoTask = CardInfo.GetCardByNameAsync(cardName);
-                        getSuccess = true;
-                        cardInfo = await cardInfoTask;
-                    }
-                    catch (Exception ex)
-                    {
-                        getSuccess = false;
-                    }
-                }
-
-                if (getSuccess == false || parseSuccess == false)
-                {
-                    failedEntries.Add(amountCardString);
-                    
-                    Console.WriteLine(amountCardString);
-
-                    continue;
-                }
-
-                cardInfo.Count = amount;
-                deckList.Add(cardInfo.ScryfallOracleID, cardInfo);
-            }
-
-            Game.FailedToFetchCards = failedEntries;
-
-            return deckList;
-        }
-
         public static async Task<Dictionary<Guid, CardInfo>> ParseDeckStringAsync(string deck)
         {
             Dictionary<Guid, CardInfo> deckList = new();
@@ -175,7 +122,7 @@ namespace PaperMagicTracker.Classes
 
             var amountAndCards = deck.Split("\n", StringSplitOptions.RemoveEmptyEntries);
 
-            //Matches any amount of numbers followed by any amount of whitespaces. PLS wizrads don't introduce cards that actually start with a digit ffs
+            //Matches any amount of numbers followed by any amount of whitespaces. PLS wizards don't introduce cards that actually start with a digit ffs
             var pattern = @"^([\d]*)\s*";
             var rg = new Regex(pattern, RegexOptions.IgnoreCase);
 
