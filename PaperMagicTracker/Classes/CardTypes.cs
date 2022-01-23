@@ -22,22 +22,19 @@ namespace PaperMagicTracker.Classes
 
         public static async Task CreateAsync()
         {
-            var taskList = new List<Task<CardTypeList>>();
+            if(CardTypeDictionary is not null) return;
 
-            Parallel.ForEach(Enum.GetValues<TypeLists>(), (superType, state) =>
+            var taskList = new List<Task<HttpResponseMessage>>();
+
+            Parallel.ForEach(Enum.GetValues<TypeLists>(),  (superType, _) =>
                     {
                         string path = @$"sample-data\{superType.ToString().ToLower()}-types.json";
 
-                        if (!File.Exists(path))
-                        {
-                            Console.WriteLine($"Did not exist {path}");
-                            return;
-                        }
+                        var task = Client.GetAsync(path);
 
-                        var task = Client.GetFromJsonAsync<CardTypeList>(path);
                         taskList.Add(task);
 
-                        Console.WriteLine($"Started SuperType Deserialization {path}");
+                        Console.WriteLine($"Send Call to {path}");
                     });
 
 
@@ -49,9 +46,15 @@ namespace PaperMagicTracker.Classes
             while (taskList.Count > 0)
             {
                 var finishedTask = await Task.WhenAny(taskList);
+                var response = await finishedTask;
 
-                var typeList = finishedTask.Result;
-
+                if (!response.IsSuccessStatusCode)
+                {
+                    taskList.Remove(finishedTask);
+                    continue;
+                }
+                
+                var typeList = await response.Content.ReadFromJsonAsync<CardTypeList>();
 
                 Console.WriteLine($"Finished deserialization of {typeList.Uri}");
 

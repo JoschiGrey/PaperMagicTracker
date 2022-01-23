@@ -49,9 +49,9 @@
 
 @code
 {
-    private static string? DeckList { get; set; }
+    private static string DeckList { get; set; } = "";
 
-    private void OnFileUpload(UploadChangeEventArgs args)
+    private static void OnFileUpload(UploadChangeEventArgs args)
     {
         foreach (var file in args.Files)
         {
