@@ -8,9 +8,9 @@
         <span class="card-count">Card Count: @Zone.CardCount</span>
     </div>
     <SfGrid ref="@Ref" ID="@Zone.Name" DataSource="@CardList" AllowRowDragAndDrop="true" AllowSelection="true" RowHeight="30" Height="100%">
-        <GridSelectionSettings AllowDragSelection="false" Type="SelectionType.Multiple"></GridSelectionSettings>
+        <GridSelectionSettings AllowDragSelection="false" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
         <GridEvents RowDropped="RowDropHandler" TValue="CardInfo"></GridEvents>
-        <GridSelectionSettings Type="SelectionType.Single"></GridSelectionSettings>
+        <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"></GridSelectionSettings>
         <GridColumns>
             <GridColumn Field="@nameof(CardInfo.Count)" TextAlign="TextAlign.Right" Width="100%" CustomAttributes="@(new Dictionary<string, object>() { { "class", "e-rowdragdrop e-attr" } })"></GridColumn>
             <GridColumn Field="@nameof(CardInfo.Name)" IsPrimaryKey="true" AutoFit="true" CustomAttributes="@(new Dictionary<string, object>() { { "class", "e-rowdragdrop e-attr e-name" } })"></GridColumn>

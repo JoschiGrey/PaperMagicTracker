@@ -1,5 +1,4 @@
 ﻿using PaperMagicTracker.Interfaces;
-using Syncfusion.Blazor.PdfViewer;
 
 namespace PaperMagicTracker.Classes
 {
