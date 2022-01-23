@@ -1,32 +1,38 @@
 ﻿@inherits LayoutComponentBase
 @inject IJSRuntime JS
 @using Syncfusion.Blazor.Navigations
+@using PaperMagicTracker.Classes
+@using Syncfusion.Licensing
+@inject HttpClient _client
+@inject ILogger<MainLayout> _logger
 
 
-
-
-<SfSidebar ID="Sidebar" Type="SidebarType.Push" Width="300px" DockSize="65px" EnableDock="true" @ref="Sidebar" @bind-IsOpen="SidebarToggle">
-    <div class="sidebar" style="position:fixed;z-index:1200">
-        <div class="topnav navbar navbar-dark">
-            <button class="navbar-toggler" @onclick="ToggleNavMenu" />
-            <a class="navbar-brand" href=""><span class="displayText" style="margin-right:30px">PaperMagicTracker</span></a>
+<LoadingScreen>
+    <SfSidebar ID="Sidebar" Type="SidebarType.Push" Width="300px" DockSize="65px" EnableDock="true" @ref="Sidebar" @bind-IsOpen="SidebarToggle">
+        <div class="sidebar" style="position:fixed;z-index:1200">
+            <div class="topnav navbar navbar-dark">
+                <button class="navbar-toggler" @onclick="ToggleNavMenu" />
+                <a class="navbar-brand" href=""><span class="displayText" style="margin-right:30px">PaperMagicTracker</span></a>
+            </div>
+            <div @onmouseover="MouseIn" @onmouseout="MouseOut">
+                <NavMenu />
+            </div>
         </div>
-        <div @onmouseover="MouseIn" @onmouseout="MouseOut">
-            <NavMenu />
+    </SfSidebar>
+
+    <div class="main">
+        <div class="top-row px-4" style="z-index: 1111; padding-top: 0px">
+            @*Top Row links come here*@
+            <NavLink class="nav-link" href="AttributionsPage">Attributions</NavLink>
+        </div>
+
+        <div class="content px-4">
+            @Body
         </div>
     </div>
-</SfSidebar>
+</LoadingScreen>
 
-<div class="main">
-    <div class="top-row px-4" style="z-index: 1111; padding-top: 0px">
-        @*Top Row links come here*@
-        <NavLink class="nav-link" href="AttributionsPage">Attributions</NavLink>
-    </div>
 
-    <div class="content px-4">
-        @Body
-    </div>
-</div>
 
 <style>
     .sidebar {
@@ -210,4 +216,6 @@
 			} 
 		} 
 	}
+
+
 }

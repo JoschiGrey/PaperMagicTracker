@@ -1,0 +1,44 @@
+﻿@using PaperMagicTracker.Classes
+@using Syncfusion.Blazor.Spinner
+
+@inject HttpClient _client
+@inject ILogger<LoadingScreen> _logger
+
+
+@if (isLoaded)
+{
+    @ChildContent
+}
+else
+{
+    <div class="content full-center">
+        <h1 class="center">Loading Card Data</h1>
+    </div>
+}
+
+@code {
+    bool isLoaded;
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    private static int _loadingProgress = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var allCardDicTask = AllOracleCards.FormAllOracleCardDictionary(_client, _logger);
+        var idDicTask = IdToOracleId.FormIdToOracleIdDic(_client, _logger);
+
+        await Task.WhenAll(idDicTask, allCardDicTask);
+        isLoaded = true;
+    }
+}
+<style>
+    .full-center {
+        display: flex;
+        align-content: center;
+        justify-content: center;
+        align-items: center;
+        padding: 20%;
+    }
+</style>

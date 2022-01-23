@@ -2,8 +2,6 @@
 {
     public static class GlobalStaticResources
     {
-        public static HttpClient Client { get; set; }
-
         /// <summary>
         /// Just to circumvent the unbound breakpoints
         /// </summary>

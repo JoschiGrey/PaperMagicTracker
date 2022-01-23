@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
 using Ardalis.GuardClauses;
+using Microsoft.AspNetCore.Components;
 
 namespace PaperMagicTracker.Classes
 {
@@ -38,16 +39,17 @@ namespace PaperMagicTracker.Classes
             await File.WriteAllTextAsync("ScryfallIdToOracleIDDictionary", json);
         }
 
-        public static async Task FormIdToOracleIdDic(HttpClient client)
+        public static async Task FormIdToOracleIdDic(HttpClient client, ILogger logger)
         {
             string path = @"sample-data\ScryfallIdToOracleIDDictionary.json";
 
             var deserializationTask = client.GetFromJsonAsync<Dictionary<Guid, Guid>>(path);
+            logger.LogTrace("Started IdToOracleId Task");
 
             var dic = await Guard.Against.Null(deserializationTask, nameof(deserializationTask));
             IdDictionary = dic;
+            logger.LogTrace("Finished IdToOracleId Task");
         }
-
 
         /// <summary>
         /// Key:ScryfallId Value:ScryfallOracleId

@@ -7,6 +7,7 @@
 @inject NavigationManager UriHelper
 
 @using Syncfusion.Blazor.Grids
+@inject ILogger<Index> _logger
 
 
 <PageTitle>Index</PageTitle>
@@ -70,12 +71,12 @@
     {
         if (AppState.GameCreated)
         {
-            await Game.ResetGame(DeckList);
+            await Game.ResetGame(DeckList, _logger);
             UriHelper.NavigateTo("MainGameWindow");
             return;
         }
 
-        await Game.CreateAsync(DeckList);
+        await Game.CreateAsync(DeckList, _logger);
         AppState.GameCreated = true;
         UriHelper.NavigateTo("MainGameWindow");
     }

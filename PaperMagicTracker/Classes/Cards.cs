@@ -2,6 +2,8 @@
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Ardalis.GuardClauses;
+using Blazor.Extensions.Logging;
+using Microsoft.AspNetCore.Components;
 using PaperMagicTracker.Exceptions;
 
 namespace PaperMagicTracker.Classes
@@ -17,12 +19,8 @@ namespace PaperMagicTracker.Classes
             ScryfallUri = new("https://en.wikipedia.org/wiki/HTTP_404");
             TypeLine = "Invalid";
         }
-        /// <summary>
-        /// Fetches a card from Scryfall by name asynchronously
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public static async Task<CardInfo> GetCardByNameAsync(string name)
+
+        public static async Task<CardInfo> GetCardByNameAsync(string name, ILogger logger)
         {
             client.DefaultRequestHeaders.Accept.Clear();
 
@@ -37,6 +35,7 @@ namespace PaperMagicTracker.Classes
             }
             catch
             {
+                logger.LogInformation($"Failed to retrieve {name} from scryfall.com");
                 throw new CardRetrievalException(name);
             }
         }
@@ -87,6 +86,9 @@ namespace PaperMagicTracker.Classes
 
         public bool IsCommander { get; set; }
 
+        [Inject]
+        protected ILogger<CardInfo> Logger { get; set; }
+
         public static async Task<Dictionary<Guid, CardInfo>> GetDeckListAsync(Uri deckUri, string deckString = "")
         {
 
@@ -115,7 +117,7 @@ namespace PaperMagicTracker.Classes
 
     public static class StringDeck
     {
-        public static async Task<Dictionary<Guid, CardInfo>> ParseDeckStringAsync(string deck)
+        public static async Task<Dictionary<Guid, CardInfo>> ParseDeckStringAsync(string deck, ILogger logger)
         {
             Dictionary<Guid, CardInfo> deckList = new();
             var failedEntries = new List<string>();
@@ -128,7 +130,7 @@ namespace PaperMagicTracker.Classes
 
             foreach (var amountCardString in amountAndCards)
             {
-                Console.WriteLine(amountCardString);
+                logger.LogTrace("Card string that is processed: " + amountCardString);
 
                 var amountString = rg.Match(amountCardString).ToString();
                 int.TryParse(amountString, out var amount);
@@ -139,12 +141,12 @@ namespace PaperMagicTracker.Classes
                 {
                     try
                     {
-                        Console.WriteLine("Fallback to scryfall for: " + nameString);
-                        cardInfo = await CardInfo.GetCardByNameAsync(nameString);
+                        logger.LogTrace("Fallback to scryfall for: " + nameString);
+                        cardInfo = await CardInfo.GetCardByNameAsync(nameString, logger);
                     }
                     catch (CardRetrievalException e)
                     {
-                        Console.WriteLine("exception in fallback adding to failed entries");
+                        logger.LogTrace("exception in fallback adding to failed entries");
                         failedEntries.Add(e.FailedCard);
                         continue;
                     }
@@ -152,12 +154,12 @@ namespace PaperMagicTracker.Classes
 
                 cardInfo.Count = amount;
                 deckList.Add(cardInfo.ScryfallOracleID, cardInfo);
-                Console.WriteLine($"Added {cardInfo.Name} to deckList");
+                logger.LogTrace($"Added {cardInfo.Name} to deckList");
             }
 
             Game.FailedToFetchCards = failedEntries;
 
-            Console.WriteLine("returning deckList");
+            logger.LogTrace("returning deckList");
             return deckList;
         }
 

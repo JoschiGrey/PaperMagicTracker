@@ -18,9 +18,8 @@ namespace PaperMagicTracker.Classes
 
     public static class CardTypes
     {
-        private static readonly HttpClient Client = GlobalStaticResources.Client;
 
-        public static async Task CreateAsync()
+        public static async Task CreateAsync(ILogger logger, HttpClient client)
         {
             if(CardTypeDictionary is not null) return;
 
@@ -30,11 +29,11 @@ namespace PaperMagicTracker.Classes
                     {
                         string path = @$"sample-data\{superType.ToString().ToLower()}-types.json";
 
-                        var task = Client.GetAsync(path);
+                        var task = client.GetAsync(path);
 
                         taskList.Add(task);
 
-                        Console.WriteLine($"Send Call to {path}");
+                        logger.LogTrace($"Send Call to {path}");
                     });
 
 

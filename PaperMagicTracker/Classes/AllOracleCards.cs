@@ -5,14 +5,14 @@ namespace PaperMagicTracker.Classes
 {
     public static class AllOracleCards
     {
-        public static async Task FormAllOracleCardDictionary(HttpClient client)
+        public static async Task FormAllOracleCardDictionary(HttpClient client, ILogger logger)
         {
             string path = @"sample-data\AllOracleCardsByName.json";
-            Console.WriteLine("Started byNameTask");
+            logger.LogTrace("Started byNameTask");
             var byNameTask = client.GetFromJsonAsync<Dictionary<string, Guid>>(path);
 
             var path2 = @"sample-data\AllOracleCardsDictionary.json";
-            Console.WriteLine("Started byOracleIdTask");
+            logger.LogTrace("Started byOracleIdTask");
             var byOracleIdTask = client.GetFromJsonAsync<Dictionary<Guid, CardInfo>>(path2);
 
             var dictionaryTasks = new List<Task> { byNameTask, byOracleIdTask };
@@ -23,13 +23,13 @@ namespace PaperMagicTracker.Classes
                 if (finishedTask == byNameTask)
                 {
                     AllOracleCardsByName = await byNameTask ?? throw new InvalidOperationException("AllOracleCardsByName Dic failed somehow");
-                    Console.WriteLine("Finished byNameTask");
+                    logger.LogTrace("Finished byNameTask");
                 }
 
                 else if (finishedTask == byOracleIdTask)
                 {
                     AllOracleCardsDictionary = await byOracleIdTask ?? throw new InvalidOperationException("AllOracleCardsDictionary failed somehow");
-                    Console.WriteLine("Finished byOracleIdTask");
+                    logger.LogTrace("Finished byOracleIdTask");
                 }
 
                 dictionaryTasks.Remove(finishedTask);

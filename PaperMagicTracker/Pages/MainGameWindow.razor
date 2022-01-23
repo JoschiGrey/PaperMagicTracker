@@ -7,6 +7,8 @@
 @using PaperMagicTracker.Extentions
 @using FilterType = Syncfusion.Blazor.DropDowns.FilterType
 @using System.Globalization
+@inject ILogger<MainGameWindow> _logger
+@inject HttpClient _httpClient
 
 <div class="flex-wrap overall-container">
     <div class="content-container information-holder">
@@ -107,7 +109,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await CardTypes.CreateAsync();
+        await CardTypes.CreateAsync(_logger, _httpClient);
     }
 
     public void AddCustomTrackerOnClick()
