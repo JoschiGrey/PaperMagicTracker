@@ -7,6 +7,8 @@
 @using PaperMagicTracker.Extentions
 @using FilterType = Syncfusion.Blazor.DropDowns.FilterType
 @using System.Globalization
+@using Syncfusion.Blazor.Kanban.Internal
+@using Syncfusion.Blazor.Popups
 @inject ILogger<MainGameWindow> _logger
 @inject HttpClient _httpClient
 
@@ -55,6 +57,23 @@
         </div>
     </div>
 </div>
+<SfDialog ID="dialog" Width="450px" IsModal="true" @bind-Visible="@Visibility">
+    <DialogTemplates>
+        <Header>Failed to add the following Cards</Header>
+        <Content>
+            <ul>
+                @foreach (var name in Game.FailedToFetchCards)
+                {
+                    <li>@name</li>
+                }
+            </ul>
+        </Content>
+    </DialogTemplates>
+    <DialogButtons>
+        <DialogButton Content="Dismiss" IsPrimary="true" OnClick="@CloseDialog" />
+    </DialogButtons>
+    <DialogEvents OnOpen="@Validation"></DialogEvents>
+</SfDialog>
 
 
 <style>
@@ -82,6 +101,8 @@
 
 @code
 {
+    private bool Visibility { get; set; } = true;
+
     private string SelectedType { get; set; } = "Land";
 
     private int Draws { get; set; } = 1;
@@ -132,5 +153,18 @@
         var targetGridComponent = Grids[receiverZone];
 
         targetGridComponent.Zone.MoveCard(donatorZone, args.Data.First());
+    }
+
+    private void Validation(Syncfusion.Blazor.Popups.BeforeOpenEventArgs args)
+    {
+        if (Game.FailedToFetchCards.Count != 0) return;
+
+        args.Cancel = true;
+        this.Visibility = false;
+    }
+
+    private void CloseDialog()
+    {
+        this.Visibility = false;
     }
 }
