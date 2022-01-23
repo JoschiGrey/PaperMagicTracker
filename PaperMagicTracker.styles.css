@@ -1,0 +1,223 @@
+/* /Components/LoadingScreen.razor.rz.scp.css */
+
+/* /Pages/AttributionsPage.razor.rz.scp.css */
+/* /Pages/MainGameWindow.razor.rz.scp.css */
+
+.grid-holder[b-sh5ab3e1tq] {
+     display: flex;
+     justify-content: center;
+     flex-direction: row;
+     margin-bottom: 24px;
+     padding-bottom: 60px;
+     width: 75%;
+     max-height: 1050px;
+     align-content: flex-start
+ }
+
+.overall-container[b-sh5ab3e1tq] {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.information-holder[b-sh5ab3e1tq] {
+    width: 20%;
+    margin-bottom: 20px;
+    display: flex;
+    justify-items: center;
+    align-content: space-around;
+    justify-content: flex-start;
+    flex-direction: column;
+    max-height: 1050px;
+}
+
+.graph-holder[b-sh5ab3e1tq] {
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+.divider-rounded[b-sh5ab3e1tq] {
+    border-top: 3px solid var(--white-overlay--1dp);
+    width: 80%;
+    border-radius: 5px;
+    align-self: center;
+}
+
+.e-button[b-sh5ab3e1tq] {
+    width: 70%;
+    align-self: center;
+}
+
+.custom-track-holder[b-sh5ab3e1tq] {
+    width: 100%;
+    margin-top: 11px;
+    overflow-x: hidden;
+}
+
+.button-text[b-sh5ab3e1tq] {
+    white-space: pre-wrap;
+}
+
+.custom-tracker[b-sh5ab3e1tq] {
+    display: flex;
+    padding-bottom: 19px;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.custom-tracker p[b-sh5ab3e1tq] {
+    padding-top: 5px;
+}
+
+.custom-tracker .divider-rounded[b-sh5ab3e1tq] {
+    margin: 1px;
+}
+
+/* /Shared/MainLayout.razor.rz.scp.css */
+.page[b-6s7mspo36i] {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.topnav[b-6s7mspo36i] {
+    height: 3.5rem;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.navbar-toggler[b-6s7mspo36i] {
+    background-color: #05163C;
+}
+
+.navbar-dark .navbar-toggler[b-6s7mspo36i] {
+    color: transparent;
+    border-color: transparent;
+}
+
+.navbar-brand[b-6s7mspo36i] {
+    font-size: 1.1rem;
+    margin-right: 24px;
+}
+
+@media (min-width: 641px) {
+    .navbar-toggler[b-6s7mspo36i] {
+        display: block;
+    }
+
+    .collapse[b-6s7mspo36i] {
+        /* Never collapse the sidebar for wide screens */
+        display: block;
+    }
+}
+
+.main[b-6s7mspo36i] {
+    flex: 1;
+}
+
+.sidebar[b-6s7mspo36i] {
+    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+}
+
+.top-row[b-6s7mspo36i] {
+    background: rgb(14,37,237);
+    background: linear-gradient(17deg, rgb(5, 39, 103) 9%, #3a0647 79%);
+    border-bottom: 1px solid rgba(0,0,80,.5);
+    justify-content: flex-end;
+    height: 3.5rem;
+    display: flex;
+    align-items: left;
+}
+
+    .top-row[b-6s7mspo36i]  a, .top-row .btn-link[b-6s7mspo36i] {
+        white-space: nowrap;
+        margin-left: 1.5rem;
+    }
+
+    .top-row a:first-child[b-6s7mspo36i] {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+@media (max-width: 640.98px) {
+    .top-row:not(.auth)[b-6s7mspo36i] {
+        display: none;
+    }
+
+    .top-row.auth[b-6s7mspo36i] {
+        justify-content: space-between;
+    }
+
+    .top-row a[b-6s7mspo36i], .top-row .btn-link[b-6s7mspo36i] {
+        margin-left: 0;
+    }
+}
+
+@media (min-width: 641px) {
+    .page[b-6s7mspo36i] {
+        flex-direction: row;
+    }
+
+    .sidebar[b-6s7mspo36i] {
+        width: 250px;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+    }
+
+    .top-row[b-6s7mspo36i] {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .main > div[b-6s7mspo36i] {
+        padding-left: 1rem !important;
+        padding-right: 1.5rem !important;
+    }
+}
+
+
+/* /Shared/NavMenu.razor.rz.scp.css */
+
+.oi[b-mix4atoxla] {
+    width: 2rem;
+    font-size: 1.1rem;
+    vertical-align: text-top;
+    top: -2px;
+}
+
+.nav-item[b-mix4atoxla] {
+    font-size: 0.9rem;
+    padding-bottom: 0.5rem;
+}
+
+    .nav-item:first-of-type[b-mix4atoxla] {
+        padding-top: 1rem;
+    }
+
+    .nav-item:last-of-type[b-mix4atoxla] {
+        padding-bottom: 1rem;
+    }
+
+    .nav-item[b-mix4atoxla]  a {
+        color: #d7d7d7;
+        border-radius: 4px;
+        height: 3rem;
+        display: flex;
+        align-items: center;
+        line-height: 3rem;
+    }
+
+        .nav-item[b-mix4atoxla]  a.active {
+            background-color: rgba(255,255,255,0.25);
+            color: white;
+        }
+
+        .nav-item[b-mix4atoxla]  a:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+
