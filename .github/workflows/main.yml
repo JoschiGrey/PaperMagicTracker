@@ -16,7 +16,7 @@ jobs:
       - name: Create Secret File
         env:
           SUPER_SECRET: ${{ secrets.SYNCFUSION_LICENCE_KEY }}
-        run: sed "s/SYNCFUSION_LICENCE_KEY/$SUPER_SECRET" PaperMagicTracker/Program.cs 
+        run: sed "s/SYNCFUSION_LICENCE_KEY/$SUPER_SECRET/" PaperMagicTracker/Program.cs 
 
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v1
