@@ -10,9 +10,7 @@
     <link href="css/app.css" rel="stylesheet" />
     <link href="PaperMagicTracker.styles.css" rel="stylesheet" />
 
-
-<link href="_content/Syncfusion.Blazor/styles/fabric-dark.css" rel="stylesheet" />
-
+    <link href="https://cdn.syncfusion.com/blazor/19.4.38/styles/fabric-dark.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.20/lodash.min.js"></script>
 </head>
 
@@ -24,13 +22,37 @@
         <a href="" class="reload">Reload</a>
         <a class="dismiss">🗙</a>
     </div>
-    <script src="_framework/blazor.webassembly.js"></script>
+    <script src="_framework/blazor.webassembly.js" autostart="false"></script>
     <script>
         function isSidebar(x, y) {
             var sidebarEle = document.elementFromPoint(x, y);
             return (sidebarEle && sidebarEle.closest('.sidebar') != null) ? true : false;
         }
     </script>
+
+<script type="module">
+    import { BrotliDecode } from './scripts/decode.min.js';
+    Blazor.start({
+        loadBootResource: function (type, name, defaultUri, integrity) {
+            if (type !== 'dotnetjs' && location.hostname !== 'localhost') {
+                return (async function () {
+                    const response = await fetch(defaultUri + '.br', { cache: 'no-cache' });
+                    if (!response.ok) {
+                        throw new Error(response.statusText);
+                    }
+                    const originalResponseBuffer = await response.arrayBuffer();
+                    const originalResponseArray = new Int8Array(originalResponseBuffer);
+                    const decompressedResponseArray = BrotliDecode(originalResponseArray);
+                    const contentType = type ===
+                        'dotnetwasm' ? 'application/wasm' : 'application/octet-stream';
+                    return new Response(decompressedResponseArray,
+                        { headers: { 'content-type': contentType } });
+                })();
+            }
+        }
+    });
+</script>
+
 
 </body>
 
