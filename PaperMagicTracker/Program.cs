@@ -21,11 +21,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 
 var key = "SYNCFUSION_LICENCE_KEY";
 
-//This will be replaced by Github actions with a valid license key.
 Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(key);
-
-var contains = key.Contains("NTcxMDI0QDMxMzkyZTM0MmUzMFJ0NzBzZV");
-Console.WriteLine("Provided key did contain the above string: " + contains);
 
 builder.Services.AddBlazoredLocalStorage();
 
