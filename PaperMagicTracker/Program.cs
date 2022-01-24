@@ -19,10 +19,13 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
     builder.Services.AddLogging(logger => logger.AddBrowserConsole().SetMinimumLevel(LogLevel.Information));
 #endif
 
+var key = "SYNCFUSION_LICENCE_KEY";
+
 //This will be replaced by Github actions with a valid license key.
-Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("SYNCFUSION_LICENCE_KEY");
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(key);
 
-
+var contains = key.Contains("NTcxMDI0QDMxMzkyZTM0MmUzMFJ0NzBzZV");
+Console.WriteLine("Provided key did contain the above string: ", contains);
 
 builder.Services.AddBlazoredLocalStorage();
 
