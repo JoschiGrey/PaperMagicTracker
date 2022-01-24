@@ -25,7 +25,7 @@ var key = "SYNCFUSION_LICENCE_KEY";
 Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(key);
 
 var contains = key.Contains("NTcxMDI0QDMxMzkyZTM0MmUzMFJ0NzBzZV");
-Console.WriteLine("Provided key did contain the above string: ", contains);
+Console.WriteLine("Provided key did contain the above string: " + contains);
 
 builder.Services.AddBlazoredLocalStorage();
 
