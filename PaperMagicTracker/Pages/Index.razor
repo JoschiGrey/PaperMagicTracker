@@ -3,7 +3,7 @@
 @inject AppState AppState
 @inject NavigationManager UriHelper
 @inject ILogger<Index> _logger
-
+@inject HttpClient _client
 
 <PageTitle>Index</PageTitle>
 
@@ -66,12 +66,12 @@
     {
         if (AppState.GameCreated)
         {
-            await Game.ResetGame(DeckList, _logger);
+            await Game.ResetGame(DeckList, _client, _logger);
             UriHelper.NavigateTo("MainGameWindow");
             return;
         }
 
-        await Game.CreateAsync(DeckList, _logger);
+        await Game.CreateAsync(DeckList, _client, _logger);
         AppState.GameCreated = true;
         UriHelper.NavigateTo("MainGameWindow");
     }

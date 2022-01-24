@@ -9,9 +9,9 @@ namespace PaperMagicTracker.Classes
             await InitializeAsync(uri);
         }
 
-        public static async Task CreateAsync(string deckString, ILogger logger)
+        public static async Task CreateAsync(string deckString, HttpClient client, ILogger logger)
         {
-            await InitializeFromStringAsync(deckString, logger);
+            await InitializeFromStringAsync(deckString, client, logger);
         }
 
         private static async Task InitializeAsync(Uri uri)
@@ -42,9 +42,9 @@ namespace PaperMagicTracker.Classes
             GameZones[Zones.Command].AddMultipleCards(commander);
         }
 
-        private static async Task InitializeFromStringAsync(string deckString, ILogger logger)
+        private static async Task InitializeFromStringAsync(string deckString,HttpClient client, ILogger logger)
         {
-            var deckListTask = StringDeck.ParseDeckStringAsync(deckString, logger);
+            var deckListTask = StringDeck.ParseDeckStringAsync(deckString, client, logger);
 
             foreach (var zoneEnum in Enum.GetValues<Zones>())
             {
@@ -81,7 +81,7 @@ namespace PaperMagicTracker.Classes
             GameLogger.AddEntry(advance);
         }
 
-        public static async Task ResetGame(string deckString, ILogger logger)
+        public static async Task ResetGame(string deckString, HttpClient client, ILogger logger)
         {
             GameZones.Clear();
             FailedToFetchCards.Clear();
@@ -89,7 +89,7 @@ namespace PaperMagicTracker.Classes
             TurnCount = 1;
             GameLogger = new CardLog();
 
-            var createTask = CreateAsync(deckString, logger);
+            var createTask = CreateAsync(deckString, client, logger);
             logger.LogInformation("All Game information got resetted");
             await createTask;
         }

@@ -1,5 +1,6 @@
 ﻿@inject HttpClient _client
 @inject ILogger<LoadingScreen> _logger
+@inject Blazored.LocalStorage.ILocalStorageService _localStorage
 
 
 @if (isLoaded)
@@ -23,7 +24,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var allCardDicTask = AllOracleCards.FormAllOracleCardDictionary(_client, _logger);
+        var allCardDicTask = AllOracleCards.FormAllOracleCardDictionary(_client, _logger, _localStorage);
         var idDicTask = IdToOracleId.FormIdToOracleIdDic(_client, _logger);
 
         await Task.WhenAll(idDicTask, allCardDicTask);

@@ -20,7 +20,7 @@ namespace PaperMagicTracker.Classes
             TypeLine = "Invalid";
         }
 
-        public static async Task<CardInfo> GetCardByNameAsync(string name, ILogger logger)
+        public static async Task<CardInfo> GetCardByNameAsync(string name, HttpClient client ,ILogger logger)
         {
             client.DefaultRequestHeaders.Accept.Clear();
 
@@ -52,43 +52,6 @@ namespace PaperMagicTracker.Classes
             Manacost = manacost;
             Count = 1;
         }
-
-        private static readonly HttpClient client = new();
-
-        [JsonPropertyName("name")]
-        public string Name { get; }
-
-        /// <summary>
-        /// Unique Identifier for each card. Not consistent between variants and reprints!
-        /// </summary>
-        [JsonPropertyName("id")]
-        public Guid ScryfallId { get; } = Guid.NewGuid();
-
-        [JsonPropertyName("uri")]
-        public Uri ScryfallUri { get; }
-
-        /// <summary>
-        /// Identifier that is consistent between reprints and variants.
-        /// </summary>
-        [JsonPropertyName("oracle_id")]
-        public Guid ScryfallOracleID { get; } = Guid.NewGuid();
-
-        [JsonPropertyName("cmc")]
-        public decimal ConvertedManaCost { get; }
-
-        [JsonPropertyName("type_line")]
-        public string TypeLine { get; }
-
-        [JsonPropertyName("mana_cost")]
-        public string? Manacost { get; }
-
-        public int Count { get; set; }
-
-        public bool IsCommander { get; set; }
-
-        [Inject]
-        protected ILogger<CardInfo> Logger { get; set; }
-
         public static async Task<Dictionary<Guid, CardInfo>> GetDeckListAsync(Uri deckUri, string deckString = "")
         {
 
@@ -113,11 +76,50 @@ namespace PaperMagicTracker.Classes
         {
             return this.MemberwiseClone();
         }
+
+        [JsonPropertyName("name")]
+        public string Name { get; }
+
+        /// <summary>
+        /// Unique Identifier for each card. Not consistent between variants and reprints!
+        /// </summary>
+        [JsonPropertyName("id")]
+        public Guid ScryfallId { get; } = Guid.NewGuid();
+
+        [JsonIgnore]
+        [JsonPropertyName("uri")]
+        public Uri ScryfallUri { get; }
+
+        /// <summary>
+        /// Identifier that is consistent between reprints and variants.
+        /// </summary>
+        [JsonPropertyName("oracle_id")]
+        public Guid ScryfallOracleID { get; } = Guid.NewGuid();
+
+        [JsonPropertyName("cmc")]
+        public decimal ConvertedManaCost { get; }
+
+        [JsonPropertyName("type_line")]
+        public string TypeLine { get; }
+
+        [JsonPropertyName("mana_cost")]
+        public string? Manacost { get; }
+
+        [JsonIgnore]
+        public int Count { get; set; }
+
+        [JsonIgnore]
+        public bool IsCommander { get; set; }
+
+        [JsonIgnore]
+        [Inject]
+        protected ILogger<CardInfo> Logger { get; set; }
+
     }
 
     public static class StringDeck
     {
-        public static async Task<Dictionary<Guid, CardInfo>> ParseDeckStringAsync(string deck, ILogger logger)
+        public static async Task<Dictionary<Guid, CardInfo>> ParseDeckStringAsync(string deck,HttpClient client, ILogger logger)
         {
             Dictionary<Guid, CardInfo> deckList = new();
             var failedEntries = new List<string>();
@@ -142,7 +144,7 @@ namespace PaperMagicTracker.Classes
                     try
                     {
                         logger.LogTrace("Fallback to scryfall for: " + nameString);
-                        cardInfo = await CardInfo.GetCardByNameAsync(nameString, logger);
+                        cardInfo = await CardInfo.GetCardByNameAsync(nameString, client, logger);
                     }
                     catch (CardRetrievalException e)
                     {

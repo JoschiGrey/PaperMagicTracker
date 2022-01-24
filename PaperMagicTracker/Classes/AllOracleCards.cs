@@ -1,40 +1,98 @@
 ﻿using System.Net.Http.Json;
 using System.Text.RegularExpressions;
+using Blazored.LocalStorage;
 
 namespace PaperMagicTracker.Classes
 {
     public static class AllOracleCards
     {
-        public static async Task FormAllOracleCardDictionary(HttpClient client, ILogger logger)
+        public static async Task FormAllOracleCardDictionary(HttpClient client, ILogger logger, ILocalStorageService localStorage)
         {
-            string path = @"sample-data\AllOracleCardsByName.json";
-            logger.LogTrace("Started byNameTask");
-            var byNameTask = client.GetFromJsonAsync<Dictionary<string, Guid>>(path);
+            var allCardFromStorage = GetAllOracleCardsDictionary(client, logger, localStorage);
+            var byNameFromStorage = GetAllOracleCardsByName(client, logger, localStorage);
 
-            var path2 = @"sample-data\AllOracleCardsDictionary.json";
-            logger.LogTrace("Started byOracleIdTask");
-            var byOracleIdTask = client.GetFromJsonAsync<Dictionary<Guid, CardInfo>>(path2);
+            List<Task<bool>> taskList = new() { allCardFromStorage, byNameFromStorage };
 
-            var dictionaryTasks = new List<Task> { byNameTask, byOracleIdTask };
-            while (dictionaryTasks.Count > 0)
+            while (taskList.Count > 0)
             {
-                Task finishedTask = await Task.WhenAny(dictionaryTasks);
-
-                if (finishedTask == byNameTask)
+                var finishedTask = await Task.WhenAny(taskList);
+                taskList.Remove(finishedTask);
+                if (await finishedTask == false && finishedTask == allCardFromStorage)
                 {
-                    AllOracleCardsByName = await byNameTask ?? throw new InvalidOperationException("AllOracleCardsByName Dic failed somehow");
-                    logger.LogTrace("Finished byNameTask");
+                    try
+                    {
+                        logger.LogTrace($"Save {AllOracleCardsDictionary} to storage");
+                        await localStorage.SetItemAsync(nameof(AllOracleCardsDictionary), AllOracleCardsDictionary);
+                    }
+                    catch (Microsoft.JSInterop.JSException e)
+                    {
+                        logger.LogInformation($"Skipped saving {AllOracleCardsDictionary} to storage, probably because of missing storage size");
+                    }
+                    
                 }
-
-                else if (finishedTask == byOracleIdTask)
+                else if (await finishedTask == false && finishedTask == byNameFromStorage)
                 {
-                    AllOracleCardsDictionary = await byOracleIdTask ?? throw new InvalidOperationException("AllOracleCardsDictionary failed somehow");
-                    logger.LogTrace("Finished byOracleIdTask");
+                    logger.LogTrace($"Saved {AllOracleCardsByName} to storage");
+                    await localStorage.SetItemAsync(nameof(AllOracleCardsByName), AllOracleCardsByName);
                 }
-
-                dictionaryTasks.Remove(finishedTask);
             }
         }
+
+        public static async Task<bool> GetAllOracleCardsByName(HttpClient client, ILogger logger, ILocalStorageService localStorage)
+        {
+            logger.LogTrace("Started byNameTask");
+
+            bool gotFromStorage = true;
+
+            Dictionary<string, Guid>? dict;
+
+    
+            dict = await localStorage.GetItemAsync<Dictionary<string, Guid>>(nameof(AllOracleCardsByName));
+            logger.LogTrace($"Try fetch {nameof(AllOracleCardsByName)} from storage");
+
+            if(dict is null)
+            {
+                var path = @"sample-data\AllOracleCardsByName.json";
+                dict = await client.GetFromJsonAsync<Dictionary<string, Guid>>(path);
+
+                gotFromStorage = false;
+                logger.LogTrace($"Fetched {nameof(AllOracleCardsByName)} from json");
+            }
+
+            AllOracleCardsByName = dict ?? throw new InvalidOperationException("AllOracleCardsByName Dic failed somehow");
+            logger.LogTrace("Finished byNameTask");
+
+            return gotFromStorage;
+        }
+
+        public static async Task<bool> GetAllOracleCardsDictionary(HttpClient client, ILogger logger, ILocalStorageService localStorage)
+        {
+            logger.LogTrace("Started allCardsTask");
+
+            bool gotFromStorage = true;
+
+
+
+            
+            var dict = await localStorage.GetItemAsync<Dictionary<Guid, CardInfo>>(nameof(AllOracleCardsDictionary));
+            logger.LogTrace($"TryToFetch {nameof(AllOracleCardsDictionary)} from storage");
+            
+
+            if(dict is null)
+            {
+                var path = @"sample-data\AllOracleCardsDictionary.json";
+                dict = await client.GetFromJsonAsync<Dictionary<Guid, CardInfo>>(path);
+
+                gotFromStorage = false;
+                logger.LogTrace($"Fetched {nameof(AllOracleCardsDictionary)} from json");
+            }
+
+            AllOracleCardsDictionary = dict ?? throw new InvalidOperationException($"{nameof(AllOracleCardsDictionary)} Dic failed somehow");
+            logger.LogTrace("Finished allCardsTask");
+
+            return gotFromStorage;
+        }
+
         public static CardInfo GetCardByOracleId(Guid oracleId)
         {
             return AllOracleCardsDictionary[oracleId];

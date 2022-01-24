@@ -1,6 +1,5 @@
 ﻿using Blazor.Extensions.Logging;
-using Blazor.Extensions.Storage;
-using Microsoft.AspNetCore.Components;
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using PaperMagicTracker;
@@ -13,12 +12,10 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddSyncfusionBlazor();
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
-builder.Services.AddLogging(logger => logger.AddBrowserConsole().SetMinimumLevel(LogLevel.Information));
+builder.Services.AddLogging(logger => logger.AddBrowserConsole().SetMinimumLevel(LogLevel.Trace));
 
-builder.Services.AddStorage();
+builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddSingleton<AppState>();
-
-var client = new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)};
 
 await builder.Build().RunAsync();
