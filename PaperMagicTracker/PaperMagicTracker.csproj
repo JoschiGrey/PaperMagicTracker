@@ -9,11 +9,6 @@
     <BlazorWebAssemblyPreserveCollationData>false</BlazorWebAssemblyPreserveCollationData>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <BlazorEnableCompression>false</BlazorEnableCompression>
-  </PropertyGroup>
-
-
   <ItemGroup>
     <PackageReference Include="Ardalis.GuardClauses" Version="3.3.0" />
     <PackageReference Include="Blazor.Extensions.Logging" Version="2.0.4" />
