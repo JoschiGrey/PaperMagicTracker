@@ -20,6 +20,9 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 #endif
 
 
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("SYNCFUSION_LICENCE_KEY");
+
+
 
 builder.Services.AddBlazoredLocalStorage();
 

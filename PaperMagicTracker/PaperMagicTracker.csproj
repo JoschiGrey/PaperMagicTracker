@@ -23,6 +23,7 @@
     <PackageReference Include="Syncfusion.Blazor.Inputs" Version="19.4.0.38" />
     <PackageReference Include="Syncfusion.Blazor.Navigations" Version="19.4.0.38" />
     <PackageReference Include="Syncfusion.Blazor.Popups" Version="19.4.0.38" />
+    <PackageReference Include="Syncfusion.Licensing" Version="19.4.0.38" />
   </ItemGroup>
  
    <ItemGroup>

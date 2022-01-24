@@ -13,6 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Create Secret File
+        env:
+          SUPER_SECRET: ${{ secrets.SYNCFUSION_LICENCE_KEY }}
+        run: sed "s/SYNCFUSION_LICENCE_KEY/$SUPER_SECRET" PaperMagicTracker/Program.cs 
+
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v1
         with: 
@@ -25,7 +30,7 @@ jobs:
       - name: Change base-tag in index.html from / to PaperMagicTracker
         run: sed -i 's/<base href="\/" \/>/<base href="\/PaperMagicTracker\/" \/>/g' release/wwwroot/index.html
         
-            # copy index.html to 404.html to serve the same file when a file is not found
+        # copy index.html to 404.html to serve the same file when a file is not found
       - name: copy index.html to 404.html
         run: cp release/wwwroot/index.html release/wwwroot/404.html
 
